@@ -104,7 +104,7 @@ Using `gunicorn` you can start the application with `gunicorn -c gunicorn.conf.p
 ## Final Notes
 A `docker-compose.yml` is provided that starts `keycloak` and `postgres 15` containers for OAuth use. The `keycloak` container needs to be built first for postgres compatibility and is referenced in the `docker/` directory of this repository.
 
-You can start the application using Docker Compose with the following commands
+You can start the application using `Docker Compose` with the following commands
 
 ```sh
 docker compose run --rm keycloak build --db=postgres
