@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% set page_id = "error" %}
+{% block title %}Error - EFS Navigator{% endblock %}
+
+{% block content %}
+<div class="empty-state">
+  <i class="fas fa-exclamation-triangle" style="color: var(--error);"></i>
+  <h3>An Error Occurred</h3>
+  <p>{{ error_message | default("Something went wrong. Please try again.") }}</p>
+
+  <div style="margin-top: 20px;">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+      <i class="fas fa-home"></i>
+      Return to Dashboard
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% set page_id = "error" %}
+{% block title %}404 Not Found{% endblock %}
+
+{% block content %}
+<div class="empty-state">
+  <i class="fas fa-house-chimney-crack" style="color: var(--error);"></i>
+  <h3>Page Not Found</h3>
+  <p>The page you were looking for doesn't exist or may have been moved.</p>
+  <div style="margin-top: 20px;">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary" title="Go to Dashboard" aria-label="Return to dashboard">
+      Return to Dashboard
+    </a>
+  </div>
+</div>
+{% endblock %}

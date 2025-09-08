@@ -1,0 +1,167 @@
+/* === Layout === */
+/* Layout Styles - Header, Navigation, Container, Grid Systems */
+
+/* ===== HEADER & NAVIGATION ===== */
+.header {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6) var(--space-8);
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+}
+
+/* Only animate when ready and not Firefox */
+body.animations-ready:not(.is-firefox) .header {
+    animation: slideInDown 0.6s ease-out;
+}
+
+/* Firefox gets a gentler fade animation */
+body.is-firefox .header {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Ensure stagger children animations also respect Firefox */
+body.is-firefox .stagger-children > * {
+    animation: fadeIn 0.4s ease-out !important;
+}
+
+.header h1 {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--primary);
+    margin-bottom: var(--space-2);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.header h1 i {
+    color: var(--primary);
+}
+
+.header-subtitle {
+    color: var(--text-secondary);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--space-5);
+}
+
+.nav {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* ===== FLOATING ACTION BUTTON ===== */
+.floating-action {
+    position: fixed;
+    bottom: var(--space-8);
+    right: var(--space-8);
+    background: var(--primary);
+    color: var(--text-inverse);
+    border: none;
+    border-radius: var(--radius-full);
+    width: 56px;
+    height: 56px;
+    font-size: var(--font-size-xl);
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    transition: all var(--transition);
+    z-index: var(--z-fixed);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.floating-action:hover {
+    background: var(--primary-dark);
+    transform: scale(1.1);
+    box-shadow: var(--shadow-xl);
+}
+
+.floating-action:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .container {
+        padding: var(--space-4);
+    }
+    
+    .header {
+        padding: var(--space-5);
+    }
+    
+    .header h1 {
+        font-size: var(--font-size-3xl);
+    }
+    
+    .card {
+        padding: var(--space-5);
+    }
+    
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-4);
+    }
+    
+    .table-container {
+        font-size: var(--font-size-sm);
+    }
+    
+    .table th,
+    .table td {
+        padding: var(--space-3) var(--space-4);
+    }
+    
+    .btn {
+        padding: 0 var(--space-4);
+        font-size: var(--font-size-xs);
+    }
+    
+    .nav {
+        flex-wrap: wrap;
+        gap: var(--space-2);
+    }
+    
+    .file-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: var(--space-4);
+    }
+    
+    .floating-action {
+        width: 48px;
+        height: 48px;
+        font-size: var(--font-size-lg);
+        bottom: var(--space-5);
+        right: var(--space-5);
+    }
+}
+
+@media (max-width: 480px) {
+    .header h1 {
+        font-size: var(--font-size-2xl);
+    }
+    
+    .header-subtitle {
+        font-size: var(--font-size-sm);
+    }
+    
+    .card-header h2 {
+        font-size: var(--font-size-xl);
+    }
+    
+    .file-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .breadcrumb {
+        padding: var(--space-3) var(--space-4);
+        font-size: var(--font-size-xs);
+    }
+}

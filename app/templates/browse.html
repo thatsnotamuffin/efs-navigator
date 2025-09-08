@@ -1,0 +1,445 @@
+{% extends "base.html" %}
+{% set page_id = "browse" %}
+{% block title %}Browse {{ path.split('/')[-1] }}{% endblock %}
+
+{% block content %}
+<div class="breadcrumbs">
+  <i class="fas fa-map-marker-alt" style="color: var(--primary); margin-right: 8px;"></i>
+
+  <!-- Dashboard -->
+  <a href="{{ url_for('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+
+  <!-- Mount root -->
+  &nbsp;/&nbsp;
+  <a href="{{ url_for('browser.browse', mount_id=mount_id) }}" class="breadcrumb-link">{{ mount_id }}</a>
+
+  <!-- Nested segments -->
+  {% set segments = path.split('/') if path else [] %}
+  {% set cumulative = [] %}
+  {% for segment in segments %}
+    {% if segment %}
+      {% set _ = cumulative.append(segment) %}
+      &nbsp;/&nbsp;
+      <a href="{{ url_for('browser.browse', mount_id=mount_id, subpath='/'.join(cumulative)) }}" class="breadcrumb-link">
+        {{ segment }}
+      </a>
+    {% endif %}
+  {% endfor %}
+</div>
+
+<!-- Pagination info and controls -->
+{% if pagination %}
+<div class="pagination-info">
+    <p>
+        Showing {{ pagination.start_item }}-{{ pagination.end_item }} of {{ pagination.total }} items
+        (Page {{ pagination.page }} of {{ pagination.pages }})
+    </p>
+</div>
+
+<div class="sort-controls">
+    <label>Sort by:</label>
+    <select id="sort-select" onchange="changeSorting()">
+        <option value="name" {{ 'selected' if current_sort == 'name' else '' }}>Name</option>
+        <option value="type" {{ 'selected' if current_sort == 'type' else '' }}>Type</option>
+        <option value="size" {{ 'selected' if current_sort == 'size' else '' }}>Size</option>
+        <option value="modified" {{ 'selected' if current_sort == 'modified' else '' }}>Modified</option>
+    </select>
+    
+    <label>
+        <input type="checkbox" id="desc-checkbox" 
+               onchange="changeSorting()" 
+               {{ 'checked' if sort_desc else '' }}>
+        Descending
+    </label>
+    
+    <label>Items per page:</label>
+    <select id="per-page-select" onchange="changePerPage()">
+        <option value="25" {{ 'selected' if per_page == 25 else '' }}>25</option>
+        <option value="50" {{ 'selected' if per_page == 50 else '' }}>50</option>
+        <option value="100" {{ 'selected' if per_page == 100 else '' }}>100</option>
+        <option value="250" {{ 'selected' if per_page == 250 else '' }}>250</option>
+        <option value="500" {{ 'selected' if per_page == 500 else '' }}>500</option>
+    </select>
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="card-header">
+    <i class="fas fa-list"></i>
+    <h2>Directory Contents</h2>
+    <div style="margin-left: auto; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+      <span class="status-badge status-available">
+        <i class="fas fa-file"></i>
+        {% if pagination %}
+          {{ pagination.total }} Total Item{{ 's' if pagination.total != 1 else '' }}
+          ({{ contents|length }} on this page)
+        {% else %}
+          {{ contents|length }} Item{{ 's' if contents|length != 1 else '' }}
+        {% endif %}
+      </span>
+      <button class="btn" id="view-toggle" title="Switch to grid view" aria-pressed="false">
+        <i class="fas fa-th-large"></i> Grid View
+      </button>
+    </div>
+    {% if contents %}
+    <!-- Search Bar -->
+    <div class="search-container" style="padding: 1rem; text-align: right;">
+      <i class="fas fa-search" style="margin-right: 8px;"></i>
+      <input type="text"
+          id="file-search-input"
+          placeholder="Search files and folders..."
+          class="search-box"
+          title="Search by filename"
+          aria-label="Search by filename"
+          style="padding: 0.5rem; width: 250px; border: 1px solid #ccc; border-radius: 6px;" />
+      {% if pagination %}
+      <small style="display: block; margin-top: 5px; color: #666;">
+        Searches current page only ({{ contents|length }} items)
+      </small>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  {% if contents %}
+    <!-- Table View (Default) -->
+    <div id="table-view" class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th><i class="fas fa-file"></i> Name</th>
+            <th><i class="fas fa-tag"></i> Type</th>
+            <th><i class="fas fa-weight-hanging"></i> Size</th>
+            <th><i class="fas fa-lock"></i> Permissions</th>
+            <th><i class="fas fa-cogs"></i> Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in contents %}
+          <tr class="file-row" data-file-path="{{ item.path if not item.is_dir else '' }}">
+            <td>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                {% if item.is_dir %}
+                  <i class="fas fa-folder file-icon" style="color: var(--warning);"></i>
+                  <a href="{{ url_for('browser.browse', mount_id=mount_id, subpath=item.path) }}" class="directory-link">
+                    {{ item.name }}
+                  </a>
+                {% else %}
+                  <i class="fas fa-file-alt file-icon" style="color: var(--gray);"></i>
+                  <span>{{ item.name }}</span>
+                {% endif %}
+              </div>
+            </td>
+            <td>
+              {% if item.is_dir %}
+                <span class="status-badge" style="background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2);">
+                  <i class="fas fa-folder"></i> Directory
+                </span>
+              {% else %}
+                <span class="status-badge" style="background: rgba(107, 114, 128, 0.1); color: var(--gray); border: 1px solid rgba(107, 114, 128, 0.2);">
+                  <i class="fas fa-file"></i> File
+                </span>
+              {% endif %}
+            </td>
+            <td>
+              {% if not item.is_dir %}
+                {% if item.size < 1024 %}
+                  {{ item.size }} B
+                {% elif item.size < 1024*1024 %}
+                  {{ "%.1f"|format(item.size / 1024) }} KB
+                {% elif item.size < 1024*1024*1024 %}
+                  {{ "%.1f"|format(item.size / 1024 / 1024) }} MB
+                {% else %}
+                  {{ "%.1f"|format(item.size / 1024 / 1024 / 1024) }} GB
+                {% endif %}
+              {% else %}
+                <span style="color: var(--gray);">—</span>
+              {% endif %}
+            </td>
+            <td>
+              <code style="background: rgba(102, 126, 234, 0.1); padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                {{ item.permissions }}
+              </code>
+            </td>
+            <td>
+              {% if not item.is_dir %}
+                <div style="display: flex; gap: 8px;">
+                  <a href="{{ url_for('browser.view_file', mount_id=mount_id, subpath=item.path) }}"
+                     class="btn btn-primary view-btn"
+                     style="padding: 4px 8px;">
+                    <i class="fas fa-eye"></i> View
+                  </a>
+                  <a href="{{ url_for('browser.download_file', mount_id=mount_id, subpath=item.path) }}"
+                     class="btn btn-success"
+                     style="padding: 4px 8px;">
+                    <i class="fas fa-download"></i> Download
+                  </a>
+                </div>
+              {% else %}
+                <span style="color: var(--gray);">—</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Grid View (Hidden by default) -->
+    <div id="grid-view" class="file-grid" style="display: none;">
+      {% for item in contents %}
+      <div class="file-card">
+        <div style="text-align: center; margin-bottom: 15px;">
+          {% if item.is_dir %}
+            <i class="fas fa-folder" style="font-size: 2.5rem; color: var(--warning);"></i>
+          {% else %}
+            <i class="fas fa-file-alt" style="font-size: 2.5rem; color: var(--gray);"></i>
+          {% endif %}
+        </div>
+        <div style="text-align: center;">
+          {% if item.is_dir %}
+            <a href="{{ url_for('browser.browse', mount_id=mount_id, subpath=item.path) }}" class="directory-link" style="font-weight: 600;">
+              {{ item.name }}
+            </a>
+          {% else %}
+            <div style="font-weight: 600; margin-bottom: 8px;">{{ item.name }}</div>
+            <div style="font-size: 12px; color: var(--gray); margin-bottom: 12px;">
+              {% if item.size < 1024 %}
+                {{ item.size }} B
+              {% elif item.size < 1024*1024 %}
+                {{ "%.1f"|format(item.size / 1024) }} KB
+              {% elif item.size < 1024*1024*1024 %}
+                {{ "%.1f"|format(item.size / 1024 / 1024) }} MB
+              {% else %}
+                {{ "%.1f"|format(item.size / 1024 / 1024 / 1024) }} GB
+              {% endif %}
+            </div>
+            <div style="display: flex; gap: 8px; justify-content: center;">
+              <a href="{{ url_for('browser.view_file', mount_id=mount_id, subpath=item.path) }}" 
+                 class="btn view-btn" 
+                 style="padding: 4px 8px;">
+                <i class="fas fa-eye"></i>
+              </a>
+              <a href="{{ url_for('browser.download_file', mount_id=mount_id, subpath=item.path) }}"
+                 class="btn btn-success"
+                 style="padding: 4px 8px;">
+                <i class="fas fa-download"></i>
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <i class="fas fa-folder-open"></i>
+      <h3>Directory is Empty</h3>
+      <p>This directory contains no files or subdirectories, or the contents could not be read.</p>
+      <div style="margin-top: 20px;">
+        <p style="font-size: 14px; color: var(--gray);">
+          <strong>Tip:</strong> If you just mounted this EFS, you may need to sync content from your actual EFS to see files here.
+        </p>
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Pagination navigation -->
+{% if pagination and pagination.pages > 1 %}
+<nav class="pagination-nav" aria-label="Pagination Navigation">
+    <!-- Previous Page -->
+    {% if pagination.has_prev %}
+        <a href="{{ url_for('browser.browse', mount_id=mount_id, subpath=path, 
+                           page=pagination.prev_num, per_page=per_page, sort=current_sort,
+                           **({'desc': ''} if sort_desc else {})) }}" 
+           class="pagination-link">
+            ← Previous
+        </a>
+    {% else %}
+        <span class="pagination-link disabled">← Previous</span>
+    {% endif %}
+
+    <!-- Page Numbers -->
+    {% set start_page = [1, pagination.page - 2] | max %}
+    {% set end_page = [pagination.pages, pagination.page + 2] | min %}
+    
+    {% if start_page > 1 %}
+        <a href="{{ url_for('browser.browse', mount_id=mount_id, subpath=path,
+                           page=1, per_page=per_page, sort=current_sort,
+                           **({'desc': ''} if sort_desc else {})) }}"
+           class="pagination-link">1</a>
+        {% if start_page > 2 %}
+            <span class="pagination-ellipsis">...</span>
+        {% endif %}
+    {% endif %}
+    
+    {% for page_num in range(start_page, end_page + 1) %}
+        {% if page_num == pagination.page %}
+            <span class="pagination-link current">{{ page_num }}</span>
+        {% else %}
+            <a href="{{ url_for('browser.browse', mount_id=mount_id, subpath=path,
+                               page=page_num, per_page=per_page, sort=current_sort,
+                               **({'desc': ''} if sort_desc else {})) }}"
+               class="pagination-link">{{ page_num }}</a>
+        {% endif %}
+    {% endfor %}
+    
+    {% if end_page < pagination.pages %}
+        {% if end_page < pagination.pages - 1 %}
+            <span class="pagination-ellipsis">...</span>
+        {% endif %}
+        <a href="{{ url_for('browser.browse', mount_id=mount_id, subpath=path,
+                           page=pagination.pages, per_page=per_page, sort=current_sort,
+                           **({'desc': ''} if sort_desc else {})) }}"
+           class="pagination-link">{{ pagination.pages }}</a>
+    {% endif %}
+
+    <!-- Next Page -->
+    {% if pagination.has_next %}
+        <a href="{{ url_for('browser.browse', mount_id=mount_id, subpath=path,
+                           page=pagination.next_num, per_page=per_page, sort=current_sort,
+                           **({'desc': ''} if sort_desc else {})) }}" 
+           class="pagination-link">
+            Next →
+        </a>
+    {% else %}
+        <span class="pagination-link disabled">Next →</span>
+    {% endif %}
+</nav>
+{% endif %}
+
+<style>
+.pagination-info {
+    margin: 10px 0;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+}
+
+.sort-controls {
+    margin: 15px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.sort-controls label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.sort-controls select, .sort-controls input[type="checkbox"] {
+    margin-left: 5px;
+    padding: 4px 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+.pagination-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 30px 0;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.pagination-link {
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #007bff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    min-width: 44px;
+    text-align: center;
+}
+
+.pagination-link:hover:not(.disabled):not(.current) {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+    transform: translateY(-1px);
+}
+
+.pagination-link.current {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+    box-shadow: 0 2px 4px rgba(0,123,255,0.3);
+}
+
+.pagination-link.disabled {
+    color: #6c757d;
+    cursor: not-allowed;
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.pagination-ellipsis {
+    padding: 10px 8px;
+    color: #6c757d;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .sort-controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .pagination-nav {
+        gap: 3px;
+    }
+    
+    .pagination-link {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+}
+</style>
+
+<script>
+function changeSorting() {
+    const sort = document.getElementById('sort-select').value;
+    const desc = document.getElementById('desc-checkbox').checked;
+    const perPage = document.getElementById('per-page-select').value;
+    
+    const params = new URLSearchParams(window.location.search);
+    params.set('sort', sort);
+    params.set('per_page', perPage);
+    params.delete('page'); // Reset to page 1 when changing sort
+    if (desc) {
+        params.set('desc', '');
+    } else {
+        params.delete('desc');
+    }
+    
+    window.location.search = params.toString();
+}
+
+function changePerPage() {
+    const sort = document.getElementById('sort-select').value;
+    const desc = document.getElementById('desc-checkbox').checked;
+    const perPage = document.getElementById('per-page-select').value;
+    
+    const params = new URLSearchParams(window.location.search);
+    params.set('per_page', perPage);
+    params.set('sort', sort);
+    params.delete('page'); // Reset to page 1 when changing items per page
+    if (desc) {
+        params.set('desc', '');
+    } else {
+        params.delete('desc');
+    }
+    
+    window.location.search = params.toString();
+}
+</script>
+{% endblock %}

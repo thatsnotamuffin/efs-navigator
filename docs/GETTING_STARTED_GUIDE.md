@@ -10,7 +10,7 @@ Ensure Python `3.11.x` is installed. Start a Python virtual environment `python3
 
 Using `uv` or `pip` install the `requirements.txt` at the root of this repository. `pip -r install requirements.txt`
 
-**NOTE:** `SQLAlchemy` exists in the `requirements.txt` as a future development point for supported username/password login. At the time of thist writing, 17 July, 2025, this is unavailable.
+**NOTE:** `SQLAlchemy` exists in the `requirements.txt` as a future development point for supported username/password login. At the time of this writing, 17 July, 2025, this is unavailable.
 
 ## General Server Setup
 This part of the guide provides some general/generic setup instructions. These are written in the context of using `Ubuntu 22.04` as the OS and running the application in a docker container.
@@ -32,7 +32,7 @@ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
 sudo apt update
-sudo apt install -y docker-cd \
+sudo apt install -y docker-ce \
     docker-ce-cli \
     containerd.io \
     docker-buildx-plugin \
@@ -88,7 +88,7 @@ Set the below environment variables
 ```sh
 LOG_LEVEL=INFO # This can be set to DEBUG - WARN - ERROR
 MODE=production
-SECRET_KEY=CHANGEME
+SECRET_KEY=CHANGEME # Change this
 MOUNT_BASE=/your/mount/dir
 OAUTH_METADATA_URL=https://your.oauth.tool/metadata/url
 OAUTH_CLIENT_ID=your-client-id

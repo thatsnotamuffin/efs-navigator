@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logged Out - EFS Navigator</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='images/efs_navigator_wheel.png') }}" sizes="48x48">
+    
+    <!-- App CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .logout-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-lg);
+            padding: var(--space-8);
+            width: 100%;
+            max-width: 400px;
+            box-shadow: var(--shadow-2xl);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideInUp 0.8s ease-out;
+            text-align: center;
+        }
+        
+        .logout-header {
+            margin-bottom: var(--space-6);
+        }
+        
+        .logout-header h1 {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0 0 var(--space-2) 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+        
+        .logout-header p {
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: var(--font-size-base);
+        }
+        
+        .logout-icon {
+            font-size: 4rem;
+            color: var(--success);
+            margin-bottom: var(--space-4);
+        }
+        
+        .btn-login {
+            padding: var(--space-3) var(--space-6);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--text-inverse);
+            border: none;
+            border-radius: var(--radius);
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-semibold);
+            cursor: pointer;
+            transition: all var(--transition);
+            box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(29, 78, 216, 0.4);
+        }
+        
+        .company-logo {
+            width: 32px;
+            height: 32px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-pattern"></div>
+    
+    <div class="logout-container">
+        <div class="logout-header">
+            <h1>
+                <img src="{{ url_for('static', filename='images/efs_navigator_wheel.png') }}" alt="EFS Navigator Logo" class="company-logo">
+                <i class="fas fa-cloud"></i>
+                EFS Navigator
+            </h1>
+        </div>
+        
+        <div class="logout-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        
+        <h2 style="color: var(--text-primary); margin-bottom: var(--space-2);">
+            You've been logged out successfully
+        </h2>
+        
+        <p style="color: var(--text-secondary); margin-bottom: var(--space-6);">
+            Thank you for using EFS Navigator. Your session has been terminated.
+        </p>
+        
+        <!-- Simple, safe login URL that should work with any auth setup -->
+        <a href="/login" class="btn-login">
+            <i class="fas fa-sign-in-alt"></i>
+            Sign In Again
+        </a>
+    </div>
+</body>
+</html>
