@@ -7,8 +7,8 @@ sequence including configuration, authentication, routing, and
 background services.
 """
 
+# pylint: disable=import-error
 from flask import Flask
-from dotenv import load_dotenv
 from werkzeug.middleware.proxy_fix import ProxyFix
 import requests
 from app.config import load_config
@@ -18,11 +18,7 @@ from app.auth.login_manager import login_mgr, User
 from app.auth.routes import register_auth_routes
 from app.routes import register_routes
 from app.browser.routes import browser_bp
-from app.utils.auto_mount import start_auto_mount
 from app.health import register_health_routes
-
-# Load environment variables from .env file
-# load_dotenv()
 
 def create_app():
     """
@@ -56,9 +52,6 @@ def create_app():
     # Setup logging
     setup_logging(app)
 
-    # Set up Utils
-    start_auto_mount(app)
-
     # Initialize Flask-Login
     login_mgr.init_app(app)
 
@@ -69,6 +62,7 @@ def create_app():
     register_health_routes(app)
     app.register_blueprint(browser_bp)
 
+    # pylint: disable=import-outside-toplevel
     from app.auth.session import should_validate_token, validate_oauth_session
     from flask_login import current_user, logout_user
     from flask import request, session, redirect, url_for
@@ -80,16 +74,21 @@ def create_app():
         """
 
         # Skip for auth endpoints and status files
-        skip_endpoints = ['auth.login', 'auth.auth_callback', 'auth.logout', 'auth.post_logout']
-        if request.endpoint in skip_endpoints or (request.endpoint and request.endpoint.startswith('static')):
-            return
-        
+        skip_endpoints = ['auth.login', 'auth.auth_callback',
+                          'auth.logout', 'auth.post_logout']
+        if (request.endpoint in skip_endpoints or
+            (request.endpoint and request.endpoint.startswith('static'))):
+            return None
+
         # Only check if users is authenticated and that it's time to validate
         if current_user.is_authenticated and should_validate_token():
             if not validate_oauth_session():
-                app.logger.info(f'OAuth session expired for user {current_user}.id')
+                app.logger.info('OAuth session expired for user %s',
+                                current_user.id)
                 logout_user()
                 session.clear()
                 return redirect(url_for('auth.login', timeout='oauth_expired'))
+
+        return None
 
     return app
