@@ -7,6 +7,7 @@ on:
 
 jobs:
   lint:
+    name: Lint
     runs-on: ubuntu-latest
 
     steps:
@@ -38,4 +39,4 @@ jobs:
           set -e
           files="$(git ls-files '*.py')"
           python -m pylint --version
-          python -m pylint --rcfile=.pylintrc --faile-under=9.0 $files
+          python -m pylint --rcfile=.pylintrc --fail-under=9.0 $files
