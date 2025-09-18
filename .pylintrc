@@ -1,0 +1,23 @@
+[MASTER]
+ignore=venv,.venv,.git,build,dist,__pycache__
+load-plugins=pylint.extensions.docparams,pylint.extensions.typing
+
+[MESSAGES CONTROL]
+disable=
+    C0114, C0115, C0116,
+    C0103,
+    R0903,
+    R0913, R0914, R0912, R0915,
+    W0511
+
+[FORMAT]
+max-line-length=100
+
+[BASIC]
+good-names=i,j,k,ex,pk,db,id,fn,df,ts,tz,ap,ok,ip
+
+[LOGGING]
+logging-format-style=new
+
+[TYPECHECK]
+ignored-modules=flask,werkzeug
