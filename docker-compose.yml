@@ -60,7 +60,7 @@ services:
       MOUNT_BASE: /mnt/data
       OAUTH_METADATA_URL: https://keycloak.example.com/realms/navigator/.well-known/openid-configuration
       OAUTH_CLIENT_ID: navigator
-      OAUTH_CLIENT_SECRET: HtaGxicgV1IihIVf90HHoqXJhtqLC5
+      OAUTH_CLIENT_SECRET: 1234CLIENT5678SECRET
       OAUTH_SCOPE: "openid email profile"
       OAUTH_LOGOUT_URL: https://keycloak.example.com/realms/navigator/protocol/openid-connect/logout
     ports:
