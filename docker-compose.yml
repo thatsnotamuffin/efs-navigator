@@ -28,7 +28,7 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: SuperDuperSecret1!
-      KC_HOSTNAME: keycloak.example.com
+      KC_HOSTNAME: localhost
       KC_HOSTNAME_STRICT: true
       KC_HOSTNAME_STRICT_HTTPS: false
       KC_PROXY: edge
@@ -46,10 +46,8 @@ services:
         condition: service_healthy
 
   navigator:
-    build:
-      context: .
-      dockerfile: docker/navigator-Dockerfile
-    image: navigator
+    image: ghcr.io/thatsnotamuffin/efs-navigator:latest
+    pull_policy: always
     container_name: navigator
     restart: unless-stopped
     user: root
@@ -58,15 +56,15 @@ services:
       MODE: production
       SECRET_KEY: CHANGEME
       MOUNT_BASE: /mnt/data
-      OAUTH_METADATA_URL: https://keycloak.example.com/realms/navigator/.well-known/openid-configuration
+      OAUTH_METADATA_URL: http://keycloak:8080/realms/navigator/.well-known/openid-configuration
       OAUTH_CLIENT_ID: navigator
-      OAUTH_CLIENT_SECRET: 1234CLIENT5678SECRET
+      OAUTH_CLIENT_SECRET: R0FQvUTXBfapVAAsqDT1JzB0YA4QsjKO
       OAUTH_SCOPE: "openid email profile"
-      OAUTH_LOGOUT_URL: https://keycloak.example.com/realms/navigator/protocol/openid-connect/logout
+      OAUTH_LOGOUT_URL: http://keycloak:8080/realms/navigator/protocol/openid-connect/logout
     ports:
       - "5000:5000"
     volumes:
-      - /mnt/data:/mnt/data
+      - /Users/brickerson/git/personal/efs-navigator:/mnt/data
     depends_on:
       postgres:
         condition: service_healthy

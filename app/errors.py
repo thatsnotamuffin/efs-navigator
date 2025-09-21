@@ -23,6 +23,10 @@ def check_auth_or_return_login():
     Return login prompt if user not authenticated, None if authenticated.
     """
 
+    # Skip auth check for OAuth flow endpoints
+    if request.endpoint in ['auth.auth_callback', 'auth.login', 'auth.logout', 'auth.post_logout']:
+        return None
+
     if not current_user.is_authenticated:
         return '''
         <html><body>
