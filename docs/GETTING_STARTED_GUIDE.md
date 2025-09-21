@@ -62,7 +62,7 @@ Using `gunicorn` you can start the application with `gunicorn -c gunicorn.conf.p
 See the [Server Setup](./server_setup.md) for more information on installing EFS Navigator on a Linux `Ubuntu 22.04` server.
 
 ## Gotchas 
-A potential gotcha is a local networking issue in Development mode. You may see this error 
+A potential gotcha is a local networking issue in Production mode when testing with `MODE=production` using the `docker-compose.yml` at the root of this repository. You may see this error below:
 
 ```sh
 Error during authentication: mismatching_state: CSRF Warning! State not equal in request and response.
