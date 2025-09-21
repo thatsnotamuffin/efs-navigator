@@ -1,4 +1,10 @@
 # EFS Navigator
+![License](https://img.shields.io/github/license/thatsnotamuffin/efs-navigator)
+[![Lint](https://github.com/thatsnotamuffin/efs-navigator/actions/workflows/lint.yaml/badge.svg)](https://github.com/thatsnotamuffin/efs-navigator/actions/workflows/lint.yaml)
+[![Build](https://github.com/thatsnotamuffin/efs-navigator/actions/workflows/build.yaml/badge.svg)](https://github.com/thatsnotamuffin/efs-navigator/actions/workflows/build.yaml)
+![Python](https://img.shields.io/badge/python-3.11-blue.svg)
+![GitHub Release](https://img.shields.io/github/v/release/thatsnotamuffin/efs-navigator?style=flat-square&logo=github)
+
 A lightweight web-based interface for exploring AWS EFS Access Points.
 
 <p align="center"><img src="./images/efs_navigator_wheel.png" width="250" height="250"></p>
@@ -24,4 +30,8 @@ You can view files with supported MIME types in the browser.
 ## Authentication
 At this time only OAuth and no authentication (development mode) are supported. Refer to the [Getting Start Guide](./docs/GETTING_STARTED_GUIDE.md) for more information on OAuth and general setup.
 
+## Release Process
+Refer to the [Release Template](./docs/release_template.md) document for information on how releases are done.
 
+## Contribution Guidelines
+Refer to the [Contributing.md](./.github/CONTRIBUTING.md) document for information on contributing to this repository.
