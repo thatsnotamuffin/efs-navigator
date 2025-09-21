@@ -32,7 +32,18 @@ jobs:
           tags: |
             type=ref,event=tag
             type=raw,value=latest
-      
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+          buildkitd-flags: --debug
+          driver: docker-container
+          driver-opts: |
+            image=moby/buildkit:latest
+          name: builder
+          use: true
+
       - name: Docker Build and Push
         uses: docker/build-push-action@v6
         with:
