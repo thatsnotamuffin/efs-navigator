@@ -1,0 +1,76 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: keycloak-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: SuperDuperSecret1!
+    volumes:
+      - keycloak-db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    build:
+      context: docker/
+      dockerfile: keycloak-Dockerfile
+    image: keycloak
+    container_name: keycloak
+    restart: unless-stopped
+    command: start --optimized
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: SuperDuperSecret1!
+      KC_HOSTNAME: keycloak
+      KC_HOSTNAME_STRICT: true
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_PROXY: edge
+      KC_HTTP_ENABLED: true
+      KC_PROXY_HEADERS: xforwarded
+      KC_FRONTEND_URL: http://keycloak:8080
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: SuperDuperSecret1!
+      KC_DB_SCHEMA: public
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  navigator:
+    image: ghcr.io/thatsnotamuffin/efs-navigator:latest
+    pull_policy: always
+    container_name: navigator
+    restart: unless-stopped
+    user: root
+    command: gunicorn wsgi:app -c gunicorn.conf.py
+    environment:
+      MODE: production
+      SECRET_KEY: CHANGEME
+      MOUNT_BASE: /mnt/data
+      OAUTH_METADATA_URL: http://keycloak:8080/realms/navigator/.well-known/openid-configuration
+      OAUTH_CLIENT_ID: navigator
+      OAUTH_CLIENT_SECRET: 1234CLIENT5678SECRET
+      OAUTH_SCOPE: "openid email profile"
+      OAUTH_LOGOUT_URL: http://keycloak:8080/realms/navigator/protocol/openid-connect/logout
+    ports:
+      - "5000:5000"
+    volumes:
+      - /path/to/your/efs/mount:/mnt/data # Pointing the EFS mount location to this repository is helpful for local development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+
+volumes:
+  keycloak-db-data:

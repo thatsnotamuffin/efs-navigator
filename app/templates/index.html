@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% set page_id = "index" %}
+{% block title %}EFS Navigator - Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <i class="fas fa-users"></i>
+    <h2>Mounts</h2>
+    <div style="margin-left: auto;">
+      <span class="status-badge status-available">
+        <i class="fas fa-folder"></i>
+        {{ mounts|length }} Mounted
+      </span>
+    </div>
+  </div>
+
+  <!-- 🔍 Search Bar -->
+  <div class="search-container" style="padding: 1rem; text-align: right;">
+    <i class="fas fa-search" style="margin-right: 8px;"></i>
+    <input type="text"
+           id="search-input"
+           placeholder="Search mounts..."
+           class="search-box"
+           title="Search mounts by ID"
+           aria-label="Search mounts by ID"
+           style="padding: 0.5rem; width: 200px; border: 1px solid #ccc; border-radius: 6px;" />
+  </div>
+
+  <div class="table-container">
+    {% if mounts %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Mount ID</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for mount in mounts %}
+          <tr>
+            <td>{{ mount }}</td>
+            <td>
+              <a href="{{ url_for('browser.browse', mount_id=mount) }}" class="btn btn-success">
+                <i class="fas fa-folder-open"></i>
+                Browse
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="empty-state">
+        <i class="fas fa-folder-open"></i>
+        <h3>No Mounts</h3>
+        <p>No EFS mounts were found.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

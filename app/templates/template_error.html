@@ -1,0 +1,86 @@
+<!-- Error page for bad templates -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Error</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .error-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 600px;
+            margin: 2rem;
+        }
+        .error-icon {
+            font-size: 4rem;
+            color: #ff6b6b;
+            margin-bottom: 1rem;
+        }
+        h1 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+        .error-details {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border-left: 4px solid #ff6b6b;
+            text-align: left;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+        .btn {
+            display: inline-block;
+            background: #4299e1;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 0.5rem;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #3182ce;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">🛠️</div>
+        <h1>Template Configuration Error</h1>
+        <p>There was a problem with the page template. This usually happens during development when routes or templates are being modified.</p>
+        
+        {% if error %}
+        <div class="error-details">
+            <strong>Technical Details:</strong><br>
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        <div style="margin-top: 2rem;">
+            <a href="/" class="btn">Go to Dashboard</a>
+            <a href="javascript:history.back()" class="btn">Go Back</a>
+        </div>
+        
+        <p style="margin-top: 2rem; font-size: 0.9rem; color: #718096;">
+            <strong>For developers:</strong> Check your routes and template syntax. This error is automatically caught in production.
+        </p>
+    </div>
+</body>
+</html>

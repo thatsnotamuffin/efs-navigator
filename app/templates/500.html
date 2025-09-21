@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% set page_id = "error" %}
+{% block title %}500 Internal Server Error{% endblock %}
+
+{% block content %}
+<div class="empty-state">
+  <i class="fas fa-bug" style="color: var(--error);"></i>
+  <h3>Something Went Wrong</h3>
+  <p>An unexpected error has occurred. Our team has been notified (probably).</p>
+  <div style="margin-top: 20px;">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary" title="Go to Dashboard" aria-label="Return to dashboard">
+      Return to Dashboard
+    </a>
+  </div>
+</div>
+{% endblock %}

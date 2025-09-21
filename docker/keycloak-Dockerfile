@@ -1,0 +1,4 @@
+FROM quay.io/keycloak/keycloak:latest
+
+# Build Keycloak with PostgreSQL support
+RUN /opt/keycloak/bin/kc.sh build --db=postgres

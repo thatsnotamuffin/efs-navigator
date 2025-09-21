@@ -1,0 +1,192 @@
+<!-- word wrap is apparently not hanndled -->
+
+{% extends "base.html" %}
+{% set page_id = "view" %}
+{% block title %}{{ file_path.split('/')[-1] }} - File Viewer{% endblock %}
+
+{% block content %}
+<!-- Replace the breadcrumb section in view_file.html -->
+<div class="breadcrumbs">
+    <i class="fas fa-map-marker-alt" style="color: var(--primary); margin-right: 8px;"></i>
+
+    <!-- Dashboard -->
+    <a href="{{ url_for('dashboard') }}" class="breadcrumb-link">Dashboard</a>
+
+    <!-- Mount root -->
+    &nbsp;/&nbsp;
+    <a href="{{ url_for('browser.browse', mount_id=mount_id) }}" class="breadcrumb-link">{{ mount_id }}</a>
+
+    <!-- Nested segments (directories leading to the file) -->
+    {% set segments = file_path.split('/') if file_path else [] %}
+    {% set cumulative = [] %}
+    {% for segment in segments[:-1] %}  <!-- Exclude the last segment (filename) -->
+        {% if segment %}
+            {% set _ = cumulative.append(segment) %}
+            &nbsp;/&nbsp;
+            <a href="{{ url_for('browser.browse', mount_id=mount_id, subpath='/'.join(cumulative)) }}" class="breadcrumb-link">
+                {{ segment }}
+            </a>
+        {% endif %}
+    {% endfor %}
+
+    <!-- Current file (not clickable) -->
+    {% if segments %}
+        &nbsp;/&nbsp;
+        <span style="font-weight: bold; color: var(--primary);">{{ segments[-1] }}</span>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <!-- Left side: Icon, title, and file info -->
+        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-eye"></i>
+                <span style="font-size: inherit; font-weight: 600; margin: 0;">File: {{ file_path.split('/')[-1] }}</span>
+            </div>
+            
+            <!-- File info badges -->
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 14px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-weight-hanging" style="color: var(--success);"></i>
+                    <strong>Size:</strong>
+                    {% if file_size < 1024 %}
+                        {{ file_size }} B
+                    {% elif file_size < 1024*1024 %}
+                        {{ "%.1f"|format(file_size / 1024) }} KB
+                    {% elif file_size < 1024*1024*1024 %}
+                        {{ "%.1f"|format(file_size / 1024 / 1024) }} MB
+                    {% else %}
+                        {{ "%.1f"|format(file_size / 1024 / 1024 / 1024) }} GB
+                    {% endif %}
+                </div>
+                {% if mime_type %}
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-tag" style="color: var(--warning);"></i>
+                    <strong>Type:</strong>
+                    <span class="status-badge" style="background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.2);">
+                        {{ mime_type }}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Right side: Download button -->
+        <div style="margin-left: auto;">
+            <a href="{{ url_for('browser.download_file', mount_id=mount_id, subpath=file_path) }}" class="btn btn-success">
+                <i class="fas fa-download" style="color: var(--on-primary)"></i>
+                Download File
+            </a>
+        </div>
+    </div>
+
+    {% if content %}
+        <div style="position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 15px; background: rgba(102, 126, 234, 0.05); border-radius: var(--border-radius); border: 1px solid rgba(102, 126, 234, 0.1); flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-code" style="color: var(--primary);"></i>
+                    <span><strong>File Contents</strong></span>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn" id="copy-clipboard" title="Copy file contents">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                    <button class="btn" id="wrap-toggle" title="Toggle word wrap" aria-pressed="false">
+                        <i class="fas fa-align-center"></i> Word Wrap
+                    </button>
+                </div>
+            </div>
+
+            <div class="code-viewer code-wrap-container">
+                <pre id="code-block" class="line-numbers"><code class="language-{{ lang }}">{{ content }}</code></pre>
+            </div>
+
+            {% if content|length > 15000 %}
+            <div style="margin-top: 15px; padding: 12px; background: rgba(245, 158, 11, 0.1); border-radius: var(--border-radius); border: 1px solid rgba(245, 158, 11, 0.2); color: #92400e;">
+                <i class="fas fa-info-circle"></i>
+                <strong>Large File Notice:</strong> This file is quite large. Only the content is shown. Consider downloading for better performance.
+            </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-file-excel"></i>
+            <h3>Cannot Display File Contents</h3>
+            <p>This file cannot be displayed in the browser. It may be a binary file or the file could not be read.</p>
+            <div style="margin-top: 20px;">
+                <a href="{{ url_for('browser.download_file', mount_id=mount_id, subpath=file_path) }}" class="btn btn-success">
+                    <i class="fas fa-download"></i>
+                    Download File Instead
+                </a>
+            </div>
+            <div style="margin-top: 15px; font-size: 14px; color: var(--gray);">
+                <p><strong>Supported file types for preview:</strong></p>
+                <ul style="display: inline-block; text-align: left; margin-top: 8px;">
+                    <li>Text files (.txt, .md, .log)</li>
+                    <li>Code files (.js, .py, .css, .html)</li>
+                    <li>Configuration files (.json, .xml, .yml)</li>
+                    <li>And other text-based formats</li>
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Keyboard shortcuts help -->
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-keyboard"></i>
+        <h2>Keyboard Shortcuts</h2>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+        <div>
+            <h4 style="margin-bottom: 10px; color: var(--primary);">File Operations</h4>
+            <ul style="list-style: none; padding: 0;">
+                <li style="margin-bottom: 8px;">
+                    <kbd>Ctrl+C</kbd>
+                    <span style="margin-left: 10px;">Copy content</span>
+                </li>
+                <li style="margin-bottom: 8px;">
+                    <kbd>W</kbd>
+                    <span style="margin-left: 10px;">Toggle word wrap</span>
+                </li>
+            </ul>
+        </div>
+        <div>
+            <h4 style="margin-bottom: 10px; color: var(--primary);">View Controls</h4>
+            <ul style="list-style: none; padding: 0;">
+                <li style="margin-bottom: 8px;">
+                    <kbd>Ctrl++</kbd>
+                    <span style="margin-left: 10px;">Increase font size</span>
+                </li>
+                <li style="margin-bottom: 8px;">
+                    <kbd>Ctrl+-</kbd>
+                    <span style="margin-left: 10px;">Decrease font size</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- Security Information -->
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-shield-alt" style="color: var(--info);"></i>
+        <h2>Security Notice</h2>
+    </div>
+    <div style="padding: 1.5rem;">
+        <div style="display: flex; align-items: flex-start; gap: 12px; padding: 1rem; background: rgba(8, 145, 178, 0.1); border-radius: 8px; border: 1px solid rgba(8, 145, 178, 0.2);">
+            <i class="fas fa-info-circle" style="color: var(--info); margin-top: 2px; flex-shrink: 0;"></i>
+            <div>
+                <p style="margin: 0 0 8px 0; font-weight: 600; color: var(--info);">File Content Display</p>
+                <p style="margin: 0; font-size: 0.9rem; line-height: 1.4;">
+                    For security reasons, some special characters in files may appear as HTML entities 
+                    (e.g., <code style="background: rgba(0,0,0,0.1); padding: 2px 4px; border-radius: 3px;">&amp;#x27;</code> instead of <code style="background: rgba(0,0,0,0.1); padding: 2px 4px; border-radius: 3px;">'</code>). 
+                    This prevents malicious code execution while viewing uploaded files. The actual file content remains unchanged.
+                    To view the file with it's special characters shown - download the file in the current browser window.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

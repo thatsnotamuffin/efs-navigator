@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}EFS Navigator{% endblock %}</title>
+
+  <!-- Fonts & Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="icon" href="{{ url_for('static', filename='images/efs_navigator_wheel.png') }}" sizes="48x48">
+
+  <!-- App CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/utilities.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+
+  <!-- Prism.js Styles -->
+  <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-coy.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/prismjs/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet">
+
+<style>
+    /* Just disable animations in Firefox, Firefox is borderline violent on page transitions */
+    @-moz-document url-prefix() {
+        * {
+            animation-duration: 0.01ms !important;
+            animation-delay: 0s !important;
+        }
+    }
+</style>
+</head>
+
+<body data-page="{{ page_id }}">
+  {% if config["MODE"] == "development" %}
+    <div class="dev-banner">🔧 Development Mode: Auth Bypassed 🔧</div>
+  {% endif %}
+
+<!-- As much as I like the firefox banner other people might not enjoy it
+<div id="firefox-warning" style="display: none; background: #f59e0b; color: #000; padding: 10px; text-align: center; font-weight: bold;">
+    🦊 Firefox Detected: Animations disabled for better performance
+</div> -->
+
+<script>
+    // Simple Firefox detection and warning
+    if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
+        document.getElementById('firefox-warning').style.display = 'block';
+    }
+</script>
+
+  <div class="background-pattern"></div>
+  <div class="container">
+    <div class="header" style="display: flex; justify-content: space-between; align-items: center;">
+      <!-- left: logo + title -->
+      <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+        <h1 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+          <img src="{{ url_for('static', filename='images/efs_navigator_wheel.png') }}"
+               alt="EFS Navigator Logo"
+               class="company-logo"
+               style="height: 128px; vertical-align: middle;">
+          EFS Navigator
+        </h1>
+        <div class="header-subtitle">Amazon Elastic File System Management & Browser</div>
+      </div>
+
+      <!-- right: buttons -->
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <a href="{{ url_for('dashboard') }}" class="btn">
+          <i class="fas fa-home"></i> Dashboard
+        </a>
+        <button onclick="location.reload()" class="btn" id="refresh-btn">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+        <a href="{{ url_for('auth.logout') }}" class="btn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
+    </div>
+
+    {% block content %}{% endblock %}
+  </div>
+
+  <!-- JS Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js"></script>
+
+  <script type="module" src="{{ url_for('static', filename='js/utils.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/alerts.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/animations.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/api.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/fileViewer.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/browser.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/core.js') }}"></script>
+
+  <!-- Prism.js -->
+  <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs/plugins/line-numbers/prism-line-numbers.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs/plugins/autoloader/prism-autoloader.min.js"></script>
+
+  {% block scripts %}{% endblock %}
+<script>
+    // Only add animations after DOM is fully ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.classList.add('animations-ready');
+        });
+    } else {
+        // DOM already loaded
+        document.body.classList.add('animations-ready');
+    }
+    
+    // Firefox-specific fix
+    if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
+        document.body.classList.add('is-firefox');
+    }
+</script>
+</body>
+</html>

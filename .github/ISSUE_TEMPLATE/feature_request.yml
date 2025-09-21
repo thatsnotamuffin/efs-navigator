@@ -1,0 +1,61 @@
+name: Feature Request YAML
+description: Suggest a new feature or enhancement
+title: "[Feature] "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: checkboxes
+    id: component
+    attributes:
+      label: Application Component
+      description: Which part of EFS Navigator does this affect?
+      options:
+        - label: Authentication & Login
+        - label: Directory Navigation
+        - label: File Viewing & Preview
+        - label: File Download
+        - label: User Interface
+        - label: Performance
+        - label: Configuration
+        - label: Logging & Monitoring
+        - label: Security
+        - label: Other
+
+  - type: input
+    id: other_component
+    attributes:
+      label: Other Component
+      description: If you selected "Other" above, please specify
+      placeholder: Describe the component(s) not listed above
+    validations:
+      required: false
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem would this solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How should this work?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Any other approaches you've thought about?
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: willingness
+    attributes:
+      label: Contribution
+      options:
+        - label: I'm willing to implement this feature

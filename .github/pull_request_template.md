@@ -5,7 +5,14 @@
 - [ ] Documentation update
 
 ## Description
-Please include a summary of the changes and the related issue (if applicable). Also, include relevant motiviation and context. List any dependencies that are required for this change.
+Please include a summary of the changes and the related issue (if applicable). Also include relevant motivation and context.
+
+Fixes # (issue number)
+
+## Testing
+- [ ] I have run `pylint` and maintained score >= 9.0
+- [ ] I have tested this change locally
+- [ ] I have tested in both development and production modes (if applicable)
 
 ## Screenshots
 Optional: Include a screenshot if UI changes are made
