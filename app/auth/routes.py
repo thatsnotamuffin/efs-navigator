@@ -179,7 +179,7 @@ def register_auth_routes(app):
             if not userinfo:
                 raise ValueError('Failed to retrieve user info')
 
-            # Clean up session security data - # Store user information
+            # Clean up session security data - Store user information
             session.pop('_nonce', None)
             session['user'] = userinfo
 
