@@ -68,7 +68,7 @@ def register_auth_routes(app):
 
         skip_endpoints = ['auth.login', 'auth.auth_callback',
                           'auth.logout', 'auth.post_logout']
-        if request.endopint in skip_endpoints:
+        if request.endpoint in skip_endpoints:
             return None
 
         if request.endpoint and request.endpoint.startswith('debug'):

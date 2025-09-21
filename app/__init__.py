@@ -73,6 +73,10 @@ def create_app():
         Check OAuth session validity before each request
         """
 
+        # Skip OAuth validation in development mode
+        if app.config.get('MODE') == 'development':
+            return None
+
         # Skip for auth endpoints and status files
         skip_endpoints = ['auth.login', 'auth.auth_callback',
                           'auth.logout', 'auth.post_logout']
