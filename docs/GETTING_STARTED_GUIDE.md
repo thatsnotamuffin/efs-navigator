@@ -25,6 +25,18 @@ export SECRET_KEY=CHANGEME
 python run.py
 ```
 
+## Local Development with OAuth in Production mode
+**Local Keycloak Configuration:** Below is a screenshot of a local `keycloak` Client configuration
+![keycloak_config](../images/keycloak_client_config.png)
+
+A `docker-compose.yml` is provided that starts `keycloak` and `postgres 15` containers for OAuth use. The `keycloak` container needs to be built first for postgres compatibility and is referenced in the `docker/` directory of this repository. This `docker-compose.yml` is configured for local development.
+
+You can start the application using `Docker Compose` with the following commands:
+```sh
+docker compose run --rm keycloak build --db=postgres
+docker compose up -d
+```
+
 ## Production
 An OAuth tool of some sort is strongly recommended when working with production level data. Any OAuth tool should work so long as a `Client ID` and `Client Secret` are able to be generated. At the moment only `Keycloak` has been tested.
 
@@ -49,11 +61,11 @@ Using `gunicorn` you can start the application with `gunicorn -c gunicorn.conf.p
 ## Server Setup (Optional)
 See the [Server Setup](./server_setup.md) for more information on installing EFS Navigator on a Linux `Ubuntu 22.04` server.
 
-## Final Notes
-A `docker-compose.yml` is provided that starts `keycloak` and `postgres 15` containers for OAuth use. The `keycloak` container needs to be built first for postgres compatibility and is referenced in the `docker/` directory of this repository.
+## Gotchas 
+A potential gotcha is a local networking issue in Development mode. You may see this error 
 
-You can start the application using `Docker Compose` with the following commands:
 ```sh
-docker compose run --rm keycloak build --db=postgres
-docker compose up -d
+Error during authentication: mismatching_state: CSRF Warning! State not equal in request and response.
 ```
+
+A possible fix is to add this to your local `/etc/hosts`: `localhost keycloak`
